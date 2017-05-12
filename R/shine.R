@@ -31,9 +31,21 @@ ui <- miniPage(
 #' Shows test results, allows navigating to failures and re-run.
 #'
 #' @param pkg The package to test
+#' @importFrom devtools as.package uses_testthat use_testthat
 #' @export
 shine <- function(pkg = ".") {
   pkg <- normalizePath(pkg, winslash = "/")
+
+  pkg <- devtools::as.package(pkg)
+  if (!devtools::uses_testthat(pkg) && interactive()) {
+    message("No testing infrastructure found. Create it?")
+    if (menu(c("Yes", "No")) == 1) {
+      devtools::use_testthat(pkg)
+    } else{
+      stop("Please create tests before brushing")
+    }
+    return(invisible())
+  }
 
   server <- function(input, output, session) {
 
